@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stepping Stone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Stepping Stone</h1>
+        <p>Stepping Stone is a financial health application with the aim to improve your financial health and overall freedom the longer you use it!
+            Please login to your account below or feel free to create an account if this is your first time here!</p>
+        <div class="button-container">
+            <button onclick="location.href='{{ url_for('login') }}'">Login</button>
+            <button onclick="location.href='{{ url_for('create_account') }}'">Create Account</button>
+        </div>
+    </div>

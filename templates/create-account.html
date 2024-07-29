@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Account</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Create New Account</h1>
+        <p>Please create your free account to unlock your new financial health potential!</p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul>
+              {% for message in messages %}
+                <li class="error-message">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        
+        <form action="{{ url_for('create_account') }}" method="post">
+            <div class="form-group">
+                <label for="first-name">First Name</label>
+                <input type="text" id="first-name" name="first-name" placeholder="Bill" required>
+            </div>
+            <div class="form-group">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last-name" placeholder="Workman" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="bworkman@gmail.com" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="bworkman66" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="**********" required>
+            </div>
+            <div class="form-group">
+                <label for="birth-date">Birth Date</label>
+                <input type="date" id="birth-date" name="birth-date" required>
+            </div>
+            <div class="button-container">
+                <button type="submit">Create New Account</button>
+                <button type="button" onclick="location.href='{{ url_for('index') }}'">Back to Welcome Page</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
