@@ -5,9 +5,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import os
 
+
 load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_KEY')
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
 
 def get_db_connection():
@@ -32,7 +34,7 @@ def create_account():
         username = request.form['username']
         password = request.form['password']
         birth_date = request.form['birth-date']
-        
+
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(sql.SQL("SELECT * FROM public.user WHERE username = %s"), [username])
@@ -49,6 +51,10 @@ def create_account():
                 INSERT INTO public.user (first_name, last_name, email, username, password, birth_date)
                 VALUES (%s, %s, %s, %s, %s, %s)
             """), (first_name, last_name, email, username, hashed_password, birth_date))
+            cur.execute(sql.SQL("""
+                INSERT INTO public.monthly_income (username, amount)
+                VALUES (%s, %s)
+            """), (username, 0)) 
             conn.commit()
             cur.close()
             conn.close()
@@ -70,7 +76,7 @@ def login():
         cur.close()
         conn.close()
 
-        if user and check_password_hash(user[5], password):  
+        if user and check_password_hash(user[5], password): 
             session['user'] = {'first_name': user[1], 'username': user[4]}
             return redirect(url_for('account_page'))
         else:
@@ -79,13 +85,49 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/account-page')
+@app.route('/account-page', methods=['GET', 'POST'])
 def account_page():
     if 'user' not in session:
         return redirect(url_for('login'))
 
-    first_name = session['user']['first_name']
-    return render_template('account-page.html', first_name=first_name)
+    username = session['user']['username']
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        new_amount = request.form['amount']
+        try:
+            cur.execute(sql.SQL("""
+                INSERT INTO public.monthly_income (username, amount)
+                VALUES (%s, %s)
+                ON CONFLICT (username) 
+                DO UPDATE SET amount = EXCLUDED.amount
+            """), (username, new_amount))
+            conn.commit()
+        except Exception as e:
+            flash(f"An error occurred: {e}")
+        finally:
+            cur.close()
+            conn.close()
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(sql.SQL("SELECT amount FROM public.monthly_income WHERE username = %s"), [username])
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if result:
+        monthly_income = result[0]
+    else:
+        monthly_income = 0
+
+    return render_template('account-page.html', first_name=session['user']['first_name'], monthly_income=monthly_income)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

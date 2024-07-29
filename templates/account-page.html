@@ -8,8 +8,17 @@
 </head>
 <body>
     <div class="container">
+        <button class="logout-button" onclick="location.href='{{ url_for('index') }}'">Logout</button>
         <h1>{{ first_name }}'s Account Hub</h1>
-        <p>Placeholder page for Sprint 1 functionality. Account Page coming soon!</p>
+        <div class="income-section">
+            <span class="dark-green">Monthly Income:</span>
+            <div class="metric-box">${{ monthly_income }}</div>
+            <form action="{{ url_for('account_page') }}" method="post" class="input-box">
+                <input type="number" name="amount" placeholder="Enter $" required>
+                <button type="submit">Update</button>
+                <span class="error-message">Warning: Income will be permanently updated.</span>
+            </form>
+        </div>
     </div>
 </body>
 </html>
